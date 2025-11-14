@@ -3,7 +3,7 @@ author:  André Dietrich
 
 email:   LiaScript@web.de
 
-version: 0.0.1
+version: 0.0.2
 
 logo:    logo.png
 
@@ -31,6 +31,15 @@ if(!window.PGlite) {
     .catch((err) => {
         console.warn("PGlite not loaded", err.message)
     })
+}
+
+window.getDatabase = function(id) {
+    if (window.databases[id] === undefined) {
+      window.databases[id] = new PGlite({
+        extensions: { pgtap: window.PGTap.pgtap }
+      })
+    }
+    return window.databases[id]
 }
 
 window.dbdiagramQuery = `WITH
@@ -584,16 +593,9 @@ window.renderReplHtml = function(responseOrResult, options) {
 <script>
 const id = "@0"
 
-if (window.databases[id] === undefined) {
-  window.databases[id] = new PGlite({
-    extensions: { pgtap: window.PGTap.pgtap }
-  })
-}
-
-const db = window.databases[id]
-
-const statements = `@input`
 setTimeout(async () => {
+  const db = window.getDatabase(id)
+  const statements = `@input`
   for (const stmt of statements.split(';')) {
     const trimmed = stmt.trim();
     if (trimmed.length === 0) continue;
@@ -624,16 +626,9 @@ setTimeout(async () => {
 <script>
 const id = "@0"
 
-if (window.databases[id] === undefined) {
-  window.databases[id] = new PGlite({
-    extensions: { pgtap: window.PGTap.pgtap }
-  })
-}
-
-const db = window.databases[id]
-
 const statements = `@input`
 setTimeout(async () => {
+  const db = window.getDatabase(id)
   for (const stmt of statements.split(';')) {
     const trimmed = stmt.trim();
     try {
@@ -686,17 +681,9 @@ setTimeout(async () => {
 
 @PGlite.js
 <script>
-const id = "@0"
-
-if (window.databases[id] === undefined) {
-  window.databases[id] = new PGlite({
-    extensions: { pgtap: window.PGTap.pgtap }
-  })
-}
-
-const db = window.databases[id]
-
 setTimeout(async () => {
+const db = window.getDatabase("@0")
+
 @input
 
 send.lia('')
@@ -739,9 +726,9 @@ but the easiest way is to copy the import statement into your project.
 
    `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/main/README.md`
 
-   or the current version 0.0.1 via:
+   or the current version 0.0.2 via:
 
-   `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/0.0.1/README.md`
+   `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/0.0.2/README.md`
 
 2. Copy the definitions into your Project
 
