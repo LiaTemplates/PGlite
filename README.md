@@ -3,7 +3,7 @@ author:  André Dietrich
 
 email:   LiaScript@web.de
 
-version: 0.0.2
+version: 0.0.3
 
 logo:    logo.png
 
@@ -307,7 +307,8 @@ window.renderReplHtml = function(responseOrResult, options) {
     } else if (typeof value === 'boolean') {
       str = value ? 'true' : 'false';
     } else if (value instanceof Date) {
-      str = value.toISOString();
+      str = value.toISOString()
+      str = str.replace('T00:00:00.000Z', '')
     } else if (Array.isArray(value)) {
       str = '[' + value.map(formatCellValue).join(', ') + ']';
     } else if (typeof value === 'object' && value !== null) {
@@ -726,9 +727,9 @@ but the easiest way is to copy the import statement into your project.
 
    `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/main/README.md`
 
-   or the current version 0.0.2 via:
+   or the current version 0.0.3 via:
 
-   `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/0.0.2/README.md`
+   `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/0.0.3/README.md`
 
 2. Copy the definitions into your Project
 
