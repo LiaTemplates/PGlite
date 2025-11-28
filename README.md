@@ -33,6 +33,33 @@ if(!window.PGlite) {
     })
 }
 
+class AccessQueue {
+  constructor() {
+    this.queue = [];
+    this.active = false;
+  }
+
+  async grantAccess() {
+    if (!this.active) {
+      this.active = true;
+      return;
+    }
+    return new Promise(resolve => this.queue.push(resolve));
+  }
+
+  releaseAccess() {
+    if (this.queue.length > 0) {
+      const next = this.queue.shift();
+      next();
+    } else {
+      this.active = false;
+    }
+  }
+}
+
+// Usage:
+window.accessQueue = new AccessQueue();
+
 window.getDatabase = function(id) {
     if (window.databases[id] === undefined) {
       window.databases[id] = new PGlite({
@@ -595,6 +622,7 @@ window.renderReplHtml = function(responseOrResult, options) {
 const id = "@0"
 
 setTimeout(async () => {
+  await window.accessQueue.grantAccess()
   const db = window.getDatabase(id)
   const statements = `@input`
   for (const stmt of statements.split(';')) {
@@ -616,6 +644,8 @@ setTimeout(async () => {
     }
   }
 
+  window.accessQueue.releaseAccess()
+
   send.lia('')
 }, 100)
 
@@ -629,6 +659,7 @@ const id = "@0"
 
 const statements = `@input`
 setTimeout(async () => {
+  await window.accessQueue.grantAccess()
   const db = window.getDatabase(id)
   for (const stmt of statements.split(';')) {
     const trimmed = stmt.trim();
@@ -649,6 +680,8 @@ setTimeout(async () => {
         break;
     }
   }
+
+  window.accessQueue.releaseAccess()
 
   send.handle("input", async (input) => {
     // Run a query
@@ -683,9 +716,15 @@ setTimeout(async () => {
 @PGlite.js
 <script>
 setTimeout(async () => {
+await window.accessQueue.grantAccess()
 const db = window.getDatabase("@0")
-
+try {
 @input
+} catch (e) {
+    console.error(e.message);
+}
+
+window.accessQueue.releaseAccess()
 
 send.lia('')
 }, 100)
