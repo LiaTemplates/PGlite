@@ -3,9 +3,11 @@ author:  André Dietrich
 
 email:   LiaScript@web.de
 
-version: 0.0.3
+version: 0.0.4
 
 logo:    logo.png
+
+edit:    true
 
 comment: PGlite Template for LiaScript.
 
@@ -766,9 +768,9 @@ but the easiest way is to copy the import statement into your project.
 
    `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/main/README.md`
 
-   or the current version 0.0.3 via:
+   or the current version 0.0.4 via:
 
-   `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/0.0.3/README.md`
+   `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/0.0.4/README.md`
 
 2. Copy the definitions into your Project
 
