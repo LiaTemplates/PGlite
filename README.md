@@ -643,6 +643,16 @@ setTimeout(async () => {
         console.html(window.dbdiagram(diagram));
         continue;
     }
+    if (trimmed.toLowerCase().startsWith('delay') ) {
+        const match = trimmed.match(/delay\s+(\d+)/i);
+        console.debug(trimmed);
+        if (match) {
+          const delay = parseInt(match[1]);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          console.html(`<div class="PGliteRepl-line"><div class="PGliteRepl-null">done</div></div>`);
+        }
+        continue;
+    }
     try {
       let result = await db.query(trimmed);
       console.html(renderReplHtml(result, { query: trimmed, ret: result }) );
@@ -680,6 +690,16 @@ setTimeout(async () => {
           console.html(window.dbdiagram(diagram));
           continue;
        }
+       if (trimmed.toLowerCase().startsWith("delay") ) {
+        const match = trimmed.match(/delay\s+(\d+)/i);
+        if (match) {
+          console.debug(trimmed);
+          const delay = parseInt(match[1]);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          console.html(`<div class="PGliteRepl-line"><div class="PGliteRepl-null">done</div></div>`);
+        }
+        continue;
+    }
       
         let result = await db.query(trimmed);
         console.html(renderReplHtml(result, { query: trimmed, ret: result }) );
@@ -698,6 +718,7 @@ setTimeout(async () => {
         .map(s => s.trim())
         .filter(s => s.length > 0);
 
+    window.accessQueue.grantAccess();
     for (const stmt of statements) {
         try {
             if (stmt.length === 0) continue;
@@ -707,6 +728,16 @@ setTimeout(async () => {
                 console.html(window.dbdiagram(diagram));
                 continue;
             }
+            if (stmt.toLowerCase().startsWith("delay") ) {
+              const match = stmt.match(/delay\s+(\d+)/i);
+              if (match) {
+                console.debug(stmt);
+                const delay = parseInt(match[1]);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                console.html(`<div class="PGliteRepl-line"><div class="PGliteRepl-null">done</div></div>`);
+              }
+              continue;
+          }
             let result = await db.query(stmt);
             console.html(renderReplHtml(result, { query: '', ret: result }) );
         } catch (e) {
@@ -714,6 +745,8 @@ setTimeout(async () => {
             break;
         }
     }
+
+    window.accessQueue.releaseAccess();
   });
 }, 100)
 
@@ -867,6 +900,13 @@ INSERT INTO products (name, price, category) VALUES
 -- SELECT * FROM products WHERE price > 100 ORDER BY price;
 ```
 @PGlite.terminal(shop)
+
+
+```sql
+SELECT * FROM products WHERE price > 100 ORDER BY price;
+```
+@PGlite.terminal(shop)
+
 
                          --{{1}}--
 The terminal maintains the database state, so you can build upon previous
