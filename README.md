@@ -3,7 +3,7 @@ author:  André Dietrich
 
 email:   LiaScript@web.de
 
-version: 0.0.5
+version: 0.0.6
 
 logo:    logo.png
 
@@ -13,6 +13,126 @@ comment: PGlite Template for LiaScript.
 
 @onload
 window.databases = window.databases || {}
+
+window.splitSqlStatements = function (sql) {
+  const out = [];
+  let cur = "";
+
+  let inSingle = false;   // '...'
+  let inDouble = false;   // "..."
+  let inLineComment = false; // --
+  let inBlockComment = false; // /* ... */
+  let dollarTag = null;   // null or "$tag$"
+
+  for (let i = 0; i < sql.length; i++) {
+    const ch = sql[i];
+    const next = sql[i + 1];
+
+    // Line comment ends at newline
+    if (inLineComment) {
+      cur += ch;
+      if (ch === "\n") inLineComment = false;
+      continue;
+    }
+
+    // Block comment ends at */
+    if (inBlockComment) {
+      cur += ch;
+      if (ch === "*" && next === "/") {
+        cur += next;
+        i++;
+        inBlockComment = false;
+      }
+      continue;
+    }
+
+    // Inside dollar-quoted string: only end when tag matches
+    if (dollarTag) {
+      cur += ch;
+      if (ch === "$") {
+        const rest = sql.slice(i);
+        if (rest.startsWith(dollarTag)) {
+          // consume the rest of tag
+          cur += dollarTag.slice(1);
+          i += dollarTag.length - 1;
+          dollarTag = null;
+        }
+      }
+      continue;
+    }
+
+    // Handle start of comments (only when not in quotes)
+    if (!inSingle && !inDouble) {
+      if (ch === "-" && next === "-") {
+        cur += ch + next;
+        i++;
+        inLineComment = true;
+        continue;
+      }
+      if (ch === "/" && next === "*") {
+        cur += ch + next;
+        i++;
+        inBlockComment = true;
+        continue;
+      }
+    }
+
+    // Handle single quotes
+    if (!inDouble && ch === "'") {
+      cur += ch;
+      if (inSingle && next === "'") { // escaped '' inside string
+        cur += next;
+        i++;
+      } else {
+        inSingle = !inSingle;
+      }
+      continue;
+    }
+
+    // Handle double quotes (identifiers)
+    if (!inSingle && ch === '"') {
+      cur += ch;
+      if (inDouble && next === '"') { // escaped ""
+        cur += next;
+        i++;
+      } else {
+        inDouble = !inDouble;
+      }
+      continue;
+    }
+
+    // Handle start of dollar quote: $tag$ ... $tag$
+    if (!inSingle && !inDouble && ch === "$") {
+      // find next $
+      const j = sql.indexOf("$", i + 1);
+      if (j !== -1) {
+        const tag = sql.slice(i, j + 1); // includes both $
+        // Valid tags: $$ or $abc123_$
+        if (/^\$[A-Za-z0-9_]*\$$/.test(tag)) {
+          dollarTag = tag;
+          cur += tag;
+          i = j; // advance to end of tag
+          continue;
+        }
+      }
+    }
+
+    // Split on semicolon only when not in any quote/comment
+    if (!inSingle && !inDouble && ch === ";") {
+      const trimmed = cur.trim();
+      if (trimmed) out.push(trimmed);
+      cur = "";
+      continue;
+    }
+
+    cur += ch;
+  }
+
+  const trimmed = cur.trim();
+  if (trimmed) out.push(trimmed);
+  return out;
+}
+
 
 if(!window.PGlite) {
     const urls = [
@@ -633,7 +753,7 @@ setTimeout(async () => {
   await window.accessQueue.grantAccess()
   const db = window.getDatabase(id)
   const statements = `@input`
-  for (const stmt of statements.split(';')) {
+  for (const stmt of splitSqlStatements(statements)) {
     const trimmed = stmt.trim();
     if (trimmed.length === 0) continue;
     if (trimmed.toLowerCase().startsWith('erdiagram') ) {
@@ -679,7 +799,7 @@ const statements = `@input`
 setTimeout(async () => {
   await window.accessQueue.grantAccess()
   const db = window.getDatabase(id)
-  for (const stmt of statements.split(';')) {
+  for (const stmt of splitSqlStatements(statements)) {
     const trimmed = stmt.trim();
     try {
         if (trimmed.length === 0) continue;
@@ -713,9 +833,7 @@ setTimeout(async () => {
 
   send.handle("input", async (input) => {
     // Run a query
-    const statements = input
-        .split(';')
-        .map(s => s.trim())
+    const statements = splitSqlStatements(input)
         .filter(s => s.length > 0);
 
     window.accessQueue.grantAccess();
@@ -807,9 +925,9 @@ but the easiest way is to copy the import statement into your project.
 
    `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/main/README.md`
 
-   or the current version 0.0.5 via:
+   or the current version 0.0.6 via:
 
-   `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/0.0.5/README.md`
+   `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/0.0.6/README.md`
 
 2. Copy the definitions into your Project
 
