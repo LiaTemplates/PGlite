@@ -371,164 +371,170 @@ window.renderReplHtml = function(responseOrResult, options) {
     return [row];
   }
 
-  // Dark/technical themed styles with clear header borders and grid
+  // Dark theme styles matching DuckDB template
   const style = `<style>
-  :root {
-    --bg-0: transparent;
-    --muted: #9aa6b0;
-    --text: #dbe9f8;
-    --grid: rgba(255,255,255,0.14);
-    --accent-num: #6ef08a;
-    --accent-bool: #59e6ff;
-    --accent-head: rgba(120,180,255,0.06);
-    --rownum-bg: rgba(255,255,255,0.03);
-  }
-
   .PGliteRepl-root {
-    font-family: "SFMono-Regular", Menlo, Monaco, "Roboto Mono", monospace;
-    color: var(--text);
-    background: var(--bg-0);
-    line-height: 1.35;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    color: #eee;
+    background: transparent;
+    line-height: 1.4;
     margin: 0;
     padding: 0;
+    font-size: 13px;
   }
 
   .PGliteRepl-line {
-    margin: 0.12rem 0;
+    margin: 0.5em 0;
     white-space: pre-wrap;
   }
 
   .PGliteRepl-query {
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
-    border: 1px solid rgba(255,255,255,0.06);
-    padding: 0.32rem 0px;
-    border-radius: 5px;
-    color: var(--text);
+    background: #2b2b2b;
+    border: 1px solid #555;
+    padding: 0.4em 0.6em;
+    border-radius: 4px;
+    color: #fff;
     overflow-x: auto;
     margin: 0;
-    line-height: 1.25;
+    line-height: 1.4;
     font-family: inherit;
+    font-weight: 600;
   }
 
   .PGliteRepl-text {
-    color: var(--muted);
-    margin: 0.08rem 0 0;
+    color: #aaa;
+    margin: 0.4em 0 0;
+    font-style: italic;
   }
 
   .PGliteRepl-error {
     color: #ffd2d2;
-    background: linear-gradient(180deg, rgba(163,28,28,0.06), rgba(163,28,28,0.03));
-    padding: 0.28rem 0.45rem;
-    border-radius: 5px;
-    border: 1px solid rgba(163,28,28,0.12);
+    background: #2b1515;
+    padding: 0.4em 0.6em;
+    border-radius: 4px;
+    border: 1px solid #553333;
     margin: 0;
   }
 
   .PGliteRepl-table-scroll {
-    overflow:auto;
-    max-width:100%;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius:6px;
-    padding:4px;
-    background: rgba(255,255,255,0.005);
-    margin-top: 4px;
-    margin-bottom: 4px;
+    overflow: visible;
+    max-width: 100%;
+    margin: 0.5em 0;
+    position: relative;
   }
 
-  /* Use separate borders to ensure header border isn't collapsed/hidden */
   .PGliteRepl-table {
-    border-collapse: separate;
-    border-spacing: 0;
-    width:100%;
+    border-collapse: collapse;
+    width: 100%;
     font-family: inherit;
-    color: var(--text);
+    color: #eee;
+    background: #1e1e1e;
+    border: 1px solid #444;
   }
 
-  /* Grid lines on all cells */
   .PGliteRepl-table th,
   .PGliteRepl-table td {
-    padding: 6px 8px;
-    border: 1px solid var(--grid);
+    padding: 0.4em 0.6em;
+    border: 1px solid #333;
     text-align: left;
     vertical-align: top;
-    min-width:36px;
-    background: transparent;
   }
 
-  /* Ensure thead cells have explicit borders and sit above sticky columns */
   .PGliteRepl-table thead th {
     position: sticky;
     top: 0;
-    z-index: 12; /* higher than sticky rownum column so header borders remain visible */
-    border: 1px solid var(--grid); /* explicit border on header */
-    background: linear-gradient(180deg, rgba(255,255,255,0.022), rgba(255,255,255,0.01));
-    color: #bfe6ff;
+    background: #2b2b2b;
+    border: 1px solid #555;
+    color: #fff;
     font-weight: 600;
-    backdrop-filter: blur(4px);
-    box-shadow: 0 2px 6px rgba(0,0,0,0.18); /* subtle separation */
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
   }
 
-  /* Row number column lower z-index than header so header top/borders show */
   .PGliteRepl-col-num {
     width: 56px;
     text-align: right;
-    color: var(--muted);
-    background: var(--rownum-bg);
-    font-variant-numeric: tabular-nums;
+    color: #888;
+    background: #262626;
+    font-style: italic;
     position: sticky;
     left: 0;
-    z-index: 8;
-    border-right: 1px solid var(--grid);
+    z-index: 11;
   }
 
   .PGliteRepl-rownum {
     width: 56px;
     text-align: right;
-    color: var(--muted);
-    background: var(--rownum-bg);
-    font-variant-numeric: tabular-nums;
+    color: #888;
+    background: #262626;
+    font-style: italic;
     position: sticky;
     left: 0;
-    z-index: 6;
-    border-right: 1px solid var(--grid);
+    z-index: 5;
   }
 
-  .PGliteRepl-null { color: var(--muted); font-style: italic; }
+  .PGliteRepl-table tbody tr:nth-child(even) {
+    background: #262626;
+  }
 
-  .PGliteRepl-number { text-align: right; color: var(--accent-num); font-variant-numeric: tabular-nums; }
+  .PGliteRepl-table tbody tr:nth-child(odd) {
+    background: #1e1e1e;
+  }
 
-  .PGliteRepl-boolean { color: var(--accent-bool); font-weight: 600; }
+  .PGliteRepl-null {
+    color: #aaa;
+    font-style: italic;
+  }
+
+  .PGliteRepl-number {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .PGliteRepl-boolean {
+    font-weight: 600;
+  }
 
   .PGliteRepl-table-row-count {
-    color: var(--muted);
-    margin-top: 4px;
+    color: #aaa;
+    margin-top: 0.4em;
     display: block;
+    font-size: 12px;
   }
 
   .PGliteRepl-divider {
-    display:flex;
-    align-items:center;
-    gap:8px;
-    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0.5em;
   }
 
   .PGliteRepl-divider hr {
-    border:none;
-    height:1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
-    flex:1;
+    border: none;
+    height: 1px;
+    background: #444;
+    flex: 1;
   }
 
-  .PGliteRepl-time { color: var(--muted); font-size:12px; }
-
-  .PGliteRepl-table tbody tr:hover td {
-    background: rgba(255,255,255,0.02);
+  .PGliteRepl-time {
+    color: #aaa;
+    font-size: 12px;
   }
 
   @media (max-width: 480px) {
-    .PGliteRepl-table th, .PGliteRepl-table td { padding: 5px 6px; font-size: 11px; }
-    .PGliteRepl-query { font-size: 12px; padding: 0.28rem 0.36rem; }
-    .PGliteRepl-col-num, .PGliteRepl-rownum { width: 40px; left: 0; }
+    .PGliteRepl-table th,
+    .PGliteRepl-table td {
+      padding: 0.3em 0.4em;
+      font-size: 11px;
+    }
+    .PGliteRepl-query {
+      font-size: 12px;
+      padding: 0.3em 0.4em;
+    }
+    .PGliteRepl-col-num,
+    .PGliteRepl-rownum {
+      width: 40px;
+    }
   }
   </style>`;
 
