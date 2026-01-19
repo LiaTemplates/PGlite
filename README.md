@@ -3,7 +3,7 @@ author:  André Dietrich
 
 email:   LiaScript@web.de
 
-version: 0.0.6
+version: 0.0.7
 
 logo:    logo.png
 
@@ -136,8 +136,8 @@ window.splitSqlStatements = function (sql) {
 
 if(!window.PGlite) {
     const urls = [
-        "https://cdn.jsdelivr.net/npm/@electric-sql/pglite/dist/index.js",
-        "https://cdn.jsdelivr.net/npm/@electric-sql/pglite/dist/pgtap/index.js",
+        "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.3.15/dist/index.js",
+        "https://cdn.jsdelivr.net/npm/@electric-sql/pglite@0.3.15/dist/pgtap/index.js",
     ]
 
     Promise.all(urls.map(url => import(url)))
@@ -925,9 +925,9 @@ but the easiest way is to copy the import statement into your project.
 
    `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/main/README.md`
 
-   or the current version 0.0.6 via:
+   or the current version 0.0.7 via:
 
-   `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/0.0.6/README.md`
+   `import: https://raw.githubusercontent.com/LiaTemplates/PGlite/0.0.7/README.md`
 
 2. Copy the definitions into your Project
 
